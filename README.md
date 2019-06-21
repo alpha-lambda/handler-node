@@ -18,6 +18,7 @@ $ npm install @alpha-lambda/handler
 
 ```js
 const handler = require('@alpha-lambda/handler');
+const pino = require('pino');
 
 module.exports.handler = handler()
 	.use(async (event, context, next) => {
@@ -27,10 +28,20 @@ module.exports.handler = handler()
 		// you can do things, like logging, after the fact
 		// you can also override the return value=
 	})
+	.with({
+		log: pino() // this will be accessible as context.log
+	})
 	.use((event, context) => {
+		context.log.info({ event }, 'incoming event');
 		return 'Hello, world!';
 	});
 ```
+
+### .use(middleware)
+Adds middleware of the `function(event, context, next) {}` form to the chain.
+
+### .with(extensions)
+Adds extensions to the context. Extensions are grouped into sections. If context has a section already, new keys will be merged in, but will not override existing ones.
 
 ### next()
 
