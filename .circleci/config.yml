@@ -34,7 +34,7 @@ jobs:
       - checkout
       - *attach_workspace
       - run: npm run test
-      - run: npx nyc report --reporter=text-lcov | coveralls
+      - run: npm run coveralls
   publish:
     <<: *node_container
     steps:

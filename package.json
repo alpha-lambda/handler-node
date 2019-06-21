@@ -20,7 +20,8 @@
   "scripts": {
     "lint": "eslint .",
     "test": "nyc --all mocha",
-    "posttest": "npm run lint"
+    "posttest": "npm run lint",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "author": {
     "name": "Anton Bazhal",
