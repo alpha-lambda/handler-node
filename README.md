@@ -1,4 +1,4 @@
-# alpha-lambda
+# @alpha-lambda/handler
 
 [![Build Status][ci-image]][ci-url]
 [![Coverage Status][coverage-image]][coverage-url]
@@ -11,78 +11,41 @@ Tiny wrapper that ensures that [AWS Lambda][aws-lambda-url] function's callback 
 ## Installation
 
 ```bash
-$ npm install alpha-lambda
+$ npm install @alpha-lambda/handler
 ```
 
 ## Usage
 
-If you do things in a usual way, you'll construct your lambda handlers similar to this:
-
 ```js
-const handler = function(event, context, callback) {
-	try {
-		const result = doSomething(event);
+const handler = require('@alpha-lambda/handler');
 
-		if (result) {
-			callback(null, result);
-		} else {
-			callback(new Error('Winter is coming!'));
-		}
-	} catch (err) {
-		callback(err);
-	}
-}
-```
-
-With `alpha-lambda` you should not worry about top-level error handling, so you can write your handlers just like this:
-
-```js
-const alphaLambda = require('alpha-lambda');
-
-module.exports.handler = alphaLambda()
-	.use(function(event, context, next) {
-		console.log('this runs first');
-		doSomethingSync();
-		return next(); // next is a function, you must call it to proceed to next middleware
+module.exports.handler = handler()
+	.use(async (event, context, next) => {
+		// this is some middleware
+		// this will forward to next function in the chain
+		await next();
+		// you can do things, like logging, after the fact
+		// you can also override the return value=
 	})
-	.use(function(event, context) {
-		console.log('then this runs');
-		return doSomethingThatReturnsAPromise()
-			.then(() => {
-				// this would be the result of your lambda invoke
-				return true;
-			});
+	.use((event, context) => {
+		return 'Hello, world!';
 	});
 ```
 
-## Error Handling
+### next()
 
-If you need custom error handling, you can do this by adding error handler as one of the first middleware, like:
+The `next()` function takes up to three arguments: `(err, context, event)`.
+
+If you specify `err`, then execution is rejected with it. You can also (optionally) specify context/event to override those values for subsequent middleware.
+
+Examples:
 
 ```js
-const alphaLambda = require('alpha-lambda');
-const co = require('co');
-
-module.exports.handler = alphaLambda()
-	.use(function(event, context, next) {
-		// Promise based error handler
-		return next()
-			.catch(err => {
-				// re throw, return Promise, etc.
-			});
-	})
-	.use(co.wrap(function* (event, context, next) {
-		// generator based error handler
-		try {
-			yield next();
-		} catch (err) {
-			// re throw, return Promise, etc.
-		}
-	})
-	.use(function(event) {
-		// normal workflow
-		return doSomething(event);
-	});
+next(); // no err, no override for context/event
+next(new Error('failure!')); // rejected with Error
+next(null, {}); // context is overriden
+next(null, null, {}); // event is overriden
+next(null, {}, {}); // both context and event are overriden
 ```
 
 ## Middleware
@@ -97,7 +60,7 @@ Use these middleware to extend functionality.
 
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Anton Bazhal
+Copyright (c) 2016-2019 Anton Bazhal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -110,16 +73,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [aws-lambda-url]: https://aws.amazon.com/lambda/details/
 [bunyan-log-child-url]: https://www.npmjs.com/package/bunyan#logchild
 [bunyan-url]: https://www.npmjs.com/package/bunyan
-[ci-image]: https://circleci.com/gh/AntonBazhal/alpha-lambda.svg?style=shield&circle-token=fc9c3e6f415d2d338800c8a08d6155708ad260ce
-[ci-url]: https://circleci.com/gh/AntonBazhal/alpha-lambda
-[coverage-image]: https://coveralls.io/repos/github/AntonBazhal/alpha-lambda/badge.svg?branch=master
-[coverage-url]: https://coveralls.io/github/AntonBazhal/alpha-lambda?branch=master
-[dependencies-url]: https://david-dm.org/antonbazhal/alpha-lambda
-[dependencies-image]: https://david-dm.org/antonbazhal/alpha-lambda/status.svg
-[devdependencies-url]: https://david-dm.org/antonbazhal/alpha-lambda?type=dev
-[devdependencies-image]: https://david-dm.org/antonbazhal/alpha-lambda/dev-status.svg
+[ci-image]: https://circleci.com/gh/alpha-lambda/handler-node.svg?style=shield&circle-token=67cd5dfa3c7473cc2e7f7deff564cacf93082266
+[ci-url]: https://circleci.com/gh/alpha-lambda/handler-node
+[coverage-image]: https://coveralls.io/repos/github/alpha-lambda/handler-node/badge.svg?branch=master
+[coverage-url]: https://coveralls.io/github/alpha-lambda/handler-node?branch=master
+[dependencies-url]: https://david-dm.org/alpha-lambda/handler-node
+[dependencies-image]: https://david-dm.org/alpha-lambda/handler-node/status.svg
+[devdependencies-url]: https://david-dm.org/alpha-lambda/handler-node?type=dev
+[devdependencies-image]: https://david-dm.org/alpha-lambda/handler-node/dev-status.svg
 [express-url]: https://expressjs.com/
 [koa-url]: http://koajs.com/
 [alpha-lambda-bunyan-url]: https://www.npmjs.com/package/alpha-lambda-bunyan
-[npm-url]: https://www.npmjs.org/package/alpha-lambda
-[npm-image]: https://img.shields.io/npm/v/alpha-lambda.svg
+[npm-url]: https://www.npmjs.org/package/@alpha-lambda/handler
+[npm-image]: https://img.shields.io/npm/v/@alpha-lambda/handler.svg
