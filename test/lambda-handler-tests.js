@@ -212,12 +212,30 @@ describe('handler', function() {
 				});
 		});
 
-		it('middleware can override result after next()', function() {
+		it('middleware can override result after await next()', function() {
 			const stub = sinon.stub().returns('foo');
 			const fixture = lambdaHandler()
 				.use(async (event, context, next) => {
 					await next();
 					return 'bar';
+				})
+				.use(stub);
+
+			return fixture(testEvent, testContext)
+				.then(result => {
+					expect(result).to.equal('bar');
+					expect(stub.calledOnce).to.be.true;
+				});
+		});
+
+		it('middleware can override result after return next()', function() {
+			const stub = sinon.stub().returns('foo');
+			const fixture = lambdaHandler()
+				.use(async (event, context, next) => {
+					return next()
+						.then(() => {
+							return 'bar';
+						});
 				})
 				.use(stub);
 
@@ -242,6 +260,20 @@ describe('handler', function() {
 				.then(result => {
 					expect(result).to.equal(obj);
 					expect(after).to.equal(true);
+				});
+		});
+
+		it('can have middleware return next() without affecting result value', function() {
+			const obj = {};
+			const fixture = lambdaHandler()
+				.use((event, context, next) => {
+					return next();
+				})
+				.use(() => obj);
+
+			return fixture(testEvent, testContext)
+				.then(result => {
+					expect(result).to.equal(obj);
 				});
 		});
 
