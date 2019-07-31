@@ -277,6 +277,62 @@ describe('handler', function() {
 				});
 		});
 
+		it('next() call is resolved with the result value', function() {
+			const result = { foo: 'foo' };
+			let nextResult;
+
+			const fixture = lambdaHandler()
+				.use(async (event, context, next) => {
+					nextResult = await next();
+				})
+				.use(() => result);
+
+			return fixture(testEvent, testContext)
+				.then(() => {
+					expect(nextResult).to.equal(result);
+				});
+		});
+
+		it('next() call is resolved with the result value in a chained call', function() {
+			const result = { foo: 'foo' };
+			let nextResult;
+
+			const fixture = lambdaHandler()
+				.use(async (event, context, next) => {
+					nextResult = await next();
+				})
+				.use(async (event, context, next) => {
+					await next();
+				})
+				.use(() => result);
+
+			return fixture(testEvent, testContext)
+				.then(() => {
+					expect(nextResult).to.equal(result);
+				});
+		});
+
+		it('next() call is resolved with result value when it is overridden after calling chained next', function() {
+			const result1 = { foo: 'foo' };
+			const result2 = { bar: 'bar' };
+			let nextResult;
+
+			const fixture = lambdaHandler()
+				.use(async (event, context, next) => {
+					nextResult = await next();
+				})
+				.use(async (event, context, next) => {
+					await next();
+					return result1;
+				})
+				.use(() => result2);
+
+			return fixture(testEvent, testContext)
+				.then(() => {
+					expect(nextResult).to.equal(result1);
+				});
+		});
+
 		it('has expected execution order', function() {
 			const order = [];
 			const fixture = lambdaHandler()
