@@ -212,6 +212,40 @@ describe('handler', function() {
 				});
 		});
 
+		it('middleware does not override context and event when their values are null', function() {
+			const spy = sinon.spy();
+
+			const fixture = lambdaHandler()
+				.use(function(event, context, next) {
+					return next(null, null, null);
+				})
+				.use(spy);
+
+			return fixture(testEvent, testContext)
+				.then(() => {
+					expect(spy.calledOnce).to.be.true;
+					expect(spy.firstCall.args[0]).to.equal(testEvent);
+					expect(spy.firstCall.args[1]).to.equal(testContext);
+				});
+		});
+
+		it('middleware does not override context and event when their values are undefined', function() {
+			const spy = sinon.spy();
+
+			const fixture = lambdaHandler()
+				.use(function(event, context, next) {
+					return next(null, undefined, undefined);
+				})
+				.use(spy);
+
+			return fixture(testEvent, testContext)
+				.then(() => {
+					expect(spy.calledOnce).to.be.true;
+					expect(spy.firstCall.args[0]).to.equal(testEvent);
+					expect(spy.firstCall.args[1]).to.equal(testContext);
+				});
+		});
+
 		it('middleware can override result after await next()', function() {
 			const stub = sinon.stub().returns('foo');
 			const fixture = lambdaHandler()
