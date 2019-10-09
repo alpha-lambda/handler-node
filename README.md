@@ -26,7 +26,7 @@ module.exports.handler = handler()
 		// this will forward to next function in the chain
 		await next();
 		// you can do things, like logging, after the fact
-		// you can also override the return value=
+		// you can also override the return value
 	})
 	.with({
 		log: pino() // this will be accessible as context.log
