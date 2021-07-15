@@ -346,6 +346,34 @@ describe('handler', function() {
 				});
 		});
 
+		it('next() called with no more middleware, return undefined', function() {
+			const result = { foo: 'foo' };
+
+			const fixture = lambdaHandler()
+				.use((event, context, next) => next(null, context, result));
+
+			return fixture(testEvent, testContext)
+				.then(nextResult => {
+					expect(nextResult).to.be.undefined;
+				});
+		});
+
+		it('next() called with no more middleware, return last returned result', function() {
+			const result = { foo: 'foo' };
+
+			const fixture = lambdaHandler()
+				.use(async (event, context, next) => {
+					await next();
+					return result;
+				})
+				.use((event, context, next) => next());
+
+			return fixture(testEvent, testContext)
+				.then(nextResult => {
+					expect(nextResult).to.equal(result);
+				});
+		});
+
 		it('next() call is resolved with result value when it is overridden after calling chained next', function() {
 			const result1 = { foo: 'foo' };
 			const result2 = { bar: 'bar' };
@@ -364,6 +392,30 @@ describe('handler', function() {
 			return fixture(testEvent, testContext)
 				.then(() => {
 					expect(nextResult).to.equal(result1);
+				});
+		});
+
+		it('next() can be called multiple times and result is handled', function() {
+			const multiEvent = ['f', 'b'];
+			const resultMap = {
+				f: { foo: 'foo' },
+				b: { bar: 'bar' }
+			};
+
+			const fixture = lambdaHandler()
+				.use(async (events, context, next) => {
+					return Promise.all(events.map(event => next(null, context, event)));
+				})
+				.use(async (event, context, next) => {
+					await next();
+				})
+				.use(async event => {
+					return resultMap[event];
+				});
+
+			return fixture(multiEvent, testContext)
+				.then(result => {
+					expect(result).to.deep.equal([resultMap.f, resultMap.b]);
 				});
 		});
 
