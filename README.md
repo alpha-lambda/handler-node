@@ -3,8 +3,6 @@
 [![Build Status][ci-image]][ci-url]
 [![Coverage Status][coverage-image]][coverage-url]
 [![NPM version][npm-image]][npm-url]
-[![Dependencies Status][dependencies-image]][dependencies-url]
-[![DevDependencies Status][devdependencies-image]][devdependencies-url]
 
 Tiny wrapper that ensures that [AWS Lambda][aws-lambda-url] function's callback is always called. In other words, from your handler you can return value, promise, throw exception, and this library will wrap your code into a promise while calling appropriate lambda-required callback. Your handler is composed of middleware, similar to [Express][express-url] or [Koa][koa-url].
 
@@ -71,7 +69,7 @@ Use these middleware to extend functionality.
 
 The MIT License (MIT)
 
-Copyright (c) 2016-2019 Anton Bazhal
+Copyright (c) 2016-2023 Anton Bazhal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -88,10 +86,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 [ci-url]: https://circleci.com/gh/alpha-lambda/handler-node
 [coverage-image]: https://coveralls.io/repos/github/alpha-lambda/handler-node/badge.svg?branch=master
 [coverage-url]: https://coveralls.io/github/alpha-lambda/handler-node?branch=master
-[dependencies-url]: https://david-dm.org/alpha-lambda/handler-node
-[dependencies-image]: https://david-dm.org/alpha-lambda/handler-node/status.svg
-[devdependencies-url]: https://david-dm.org/alpha-lambda/handler-node?type=dev
-[devdependencies-image]: https://david-dm.org/alpha-lambda/handler-node/dev-status.svg
 [express-url]: https://expressjs.com/
 [koa-url]: http://koajs.com/
 [alpha-lambda-bunyan-url]: https://www.npmjs.com/package/alpha-lambda-bunyan
